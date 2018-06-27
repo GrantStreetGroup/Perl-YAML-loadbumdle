@@ -169,6 +169,13 @@ sub _unravel_hash {
     my $data = shift;
     
     while (my @keys = grep { exists $data->{$_} } @SPECIAL) {
+        # Make sure that deeper -merges and such will be handled first
+        for my $key ( grep { ! $SPECIAL{ $_ } } keys %$data ) {
+            # False values can be skipped for performance
+            next unless $data->{$key};
+            $data->{$key} = _unravel($data->{$key})
+        }
+
         for my $key (@keys) {
             my $handler = $SPECIAL{$key};
             my $val = delete $data->{$key};
