@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 26;
+use Test::More tests => 27;
 use Test::Exception;
 use Fcntl qw(:seek);
 use File::Temp qw(:POSIX);
@@ -185,6 +185,49 @@ importer:
         importer    => { x => 1, y => 2, z => 3 },
     },
     'multi-step export/import',
+);
+
+# nested special keys
+is_deeply(
+    load_yaml(<<'...'),
+default: &default
+    development: &default_dev
+        goodness: BAD
+        env: DEV
+    production:
+        -merge: *default_dev
+
+specific: &specific
+    -merge: *default
+    development: &specific_dev
+        goodness: GOOD
+    production:
+        -merge:  *specific_dev
+        env: PROD
+...
+    {
+        default => {
+            development => {
+                goodness => 'BAD',
+                env => 'DEV',
+            },
+            production => {
+                goodness => 'BAD',
+                env => 'DEV',
+            },
+        },
+        specific => {
+            development => {
+                goodness => 'GOOD',
+                env => 'DEV',
+            },
+            production => {
+                goodness => 'GOOD',
+                env => 'PROD',
+            },
+        },
+    },
+    'nested -merge paths work',
 );
 
 # YAML that looks like a pseudo-hash shouldn't generate any warnings
