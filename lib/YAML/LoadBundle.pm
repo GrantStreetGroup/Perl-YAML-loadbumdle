@@ -1,5 +1,6 @@
 package YAML::LoadBundle;
 # ABSTRACT: Load a directory of YAML files as a bundle
+# VERSION
 
 use base qw(Exporter);
 use warnings;
