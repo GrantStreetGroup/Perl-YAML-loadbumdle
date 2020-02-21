@@ -4,7 +4,7 @@ YAML::LoadBundle - Load a directory of YAML files as a bundle
 
 # VERSION
 
-version v0.0.1
+version v0.4.1
 
 # SYNOPSIS
 
@@ -64,7 +64,7 @@ strategies.
 
 - `-merge`
 
-    deep merge (see [Hash::Merge::Simple](https://metacpan.org/pod/Hash::Merge::Simple))
+    deep merge (see [Hash::Merge::Simple](https://metacpan.org/pod/Hash%3A%3AMerge%3A%3ASimple))
 
 - <-flatten>
 
@@ -229,7 +229,7 @@ If false, caching is disabled.
 
 # AUTHOR
 
-Grant Street Group &lt;developers@grantstreet.com>
+Grant Street Group <developers@grantstreet.com>
 
 # COPYRIGHT AND LICENSE
 
