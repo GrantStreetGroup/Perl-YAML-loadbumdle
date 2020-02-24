@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 27;
+use Test::More tests => 30;
 use Test::Exception;
 use Fcntl qw(:seek);
 use File::Temp qw(:POSIX);
