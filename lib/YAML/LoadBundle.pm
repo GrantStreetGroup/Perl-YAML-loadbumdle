@@ -12,7 +12,7 @@ use Digest::SHA1        qw( sha1_hex sha1 );
 use File::Find          qw( find );
 use Hash::Merge::Simple ();
 use Scalar::Util        qw( reftype refaddr );
-use Storable            qw( freeze );
+use Storable            qw( freeze dclone );
 use YAML::XS            qw(Load);
 
 our @EXPORT_OK = qw(
@@ -51,11 +51,17 @@ sub remove_yaml_observer {
     } @load_yaml_observers;
 }
 
+our %seen;
+
 sub load_yaml {
     my ($arg, $dont_cache) = @_;
     my @yaml;
     my $cache_mtime;
     my %params;
+
+    # We clone references that appear more than once in the data
+    # structure. (For compatibility with Data::Visitor.)
+    local %seen = ();
 
     if (ref $arg) {
         @yaml = <$arg>;
@@ -148,6 +154,8 @@ sub _unravel {
     my $data = shift;
 
     if (ref $data) {
+        $data = dclone($data) if $seen{$data}++;
+
         if (reftype $data eq 'HASH') {
             return _unravel_hash($data);
         }
@@ -200,9 +208,9 @@ sub _unravel_hash {
         $elt = _unravel($elt) if ref($elt);
     }
 
+    $data = dclone($data) if $seen{$data}++;
     return $data;
 }
-
 
 
 {

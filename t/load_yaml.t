@@ -65,28 +65,37 @@ lives_ok { load_yaml($yaml) } 'trailing space removed';
 $yaml = <<'...';
 ---
 foo:
-  export: &foo { x: 1 }
-  y: 2
+  export: &foo { x: [one] }
+  y: two
 
 bar:
   import: *foo
-  export: &bar { z: 3 }
+  export: &bar { z: three }
 
 baz:
+  nested: *foo
   import: [ *foo, *bar ]
-  export: &baz { x: overridden }
+  export: &baz { x: [overridden] }
 ...
 
 $ref = load_yaml($yaml);
 is_deeply(
     $ref,
     {
-        foo => { x => 1, y => 2 },
-        bar => { x => 1, z => 3 },
-        baz => { x => 'overridden', z => 3 },
+        foo => { x => ['one'], y => 'two' },
+        bar => { x => ['one'], z => 'three' },
+        baz => { x => ['overridden'], 
+                 z => 'three', 
+                 nested => { x => ['one'] } 
+               },
     },
     'reference-flattening',
 );
+
+$ref->{foo}{x}[0] =~ s/one/ONE/;
+is $ref->{foo}{x}[0], 'ONE',         "If we modify an exported node...";
+is $ref->{bar}{x}[0], 'one',         "... the change isn't shared with imported nodes";
+is $ref->{baz}{nested}{x}[0], 'one', "... nor references.";
 
 is_deeply(
     load_yaml(<<'...'),
