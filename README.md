@@ -4,7 +4,7 @@ YAML::LoadBundle - Load a directory of YAML files as a bundle
 
 # VERSION
 
-version v0.4.1
+version v0.4.2
 
 # SYNOPSIS
 
