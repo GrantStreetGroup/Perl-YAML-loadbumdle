@@ -506,7 +506,7 @@ __END__
 
 =head1 DESCRIPTION
 
-Adds additonal features to YAML::XS to allow splitting a YAML file into
+Adds additional features to YAML::XS to allow splitting a YAML file into
 multiple files in a common directory.
 This helps with readability when the file is large.
 
