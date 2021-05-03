@@ -564,7 +564,7 @@ deep merge (see L<Hash::Merge::Simple>)
 
 =item * C<-clone>
 
-clones intermediate hash keys, see below
+clones intermediate hash keys, see L</Cloning intermediate hash keys> below.
 
 =item * C<-flatten>
 
