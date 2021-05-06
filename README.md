@@ -4,7 +4,7 @@ YAML::LoadBundle - Load a directory of YAML files as a bundle
 
 # VERSION
 
-version v0.4.2
+version v0.4.3
 
 # SYNOPSIS
 
@@ -14,7 +14,7 @@ version v0.4.2
 
 # DESCRIPTION
 
-Adds additonal features to YAML::XS to allow splitting a YAML file into
+Adds additional features to YAML::XS to allow splitting a YAML file into
 multiple files in a common directory.
 This helps with readability when the file is large.
 
@@ -66,7 +66,11 @@ strategies.
 
     deep merge (see [Hash::Merge::Simple](https://metacpan.org/pod/Hash%3A%3AMerge%3A%3ASimple))
 
-- <-flatten>
+- `-clone`
+
+    clones intermediate hash keys, see ["Cloning intermediate hash keys"](#cloning-intermediate-hash-keys) below.
+
+- `-flatten`
 
         some_key: { -flatten: [*SomeArrayRef, *SomeOtherArrayRef] }
 
@@ -97,6 +101,88 @@ Like normal list assignment in Perl, the right-hand side takes precedence
 Instead of a hash reference, any of these keys may contain an array reference
 of hash references, in which case those hash references are merged using
 whatever strategy normally applies (e.g. deep merge for `-merge`).
+
+#### Cloning intermediate hash keys
+
+`-clone` provides a way to repeat intermediate nodes in hashes:
+
+    apple:
+      -clone:
+         letters:
+           letters: &letters
+             - a
+             - b
+           d: e
+           f: g
+         numbers:
+           numbers:
+             - 1
+             - 2
+           quattro: 4
+           cinco:   5
+      golf: g
+      hotel: h
+
+    banana:
+      -clone:
+        letters:
+           letters:  *letters
+           h: i
+           j: k
+
+This results a hash with "d" and "f" keys getting cloned inside another
+hash using keys "a" and "b" for each cloned copy; "quattro" and "cinco"
+are also cloned under keys "1" and "2", together with "g" and "h" which are
+just along for the ride.
+
+The same "a" and "b" keys get referenced, without duplication, and used
+for intermediate keys in a different part of the hash.
+
+So the resulting hash would be:
+
+    'apple' => {
+          'a' => {
+              'd' => 'e',
+              'f' => 'g',
+           },
+          'b' => {
+              'd' => 'e',
+              'f' => 'g',
+           },
+          '1' => {
+              'quattro' => '4',
+              'cinco' => '5',
+          },
+          '2' => {
+              'quattro' => '4',
+              'cinco' => '5',
+          },
+          'golf' => 'g',
+          'hotel' => 'h',
+     },
+     'banana' => {
+          'a' => {
+              'h' => 'i',
+              'j' => 'k',
+          },
+          'b' => {
+              'h' => 'i',
+              'j' => 'k',
+          },
+      },
+
+Formally:
+
+`-clone` itself must be a hash key, and contains a hash, the "clone" hash,
+with one or more keys. Each value of those keys is a subhash that must
+have a key with the same name as its parent key in the "clone" hash.
+This key's value must be a list, and the rest of the subhash gets cloned,
+one for each value in the list, and placed into the `-clone` hash,
+with each value in the list being its key.
+
+This provides the means to have a single specification of a list and
+then repeat it (via the usual YAML "&" and "\*") references but insert them
+as intermediate hash keys.
 
 ### load\_yaml\_bundle
 
@@ -233,7 +319,7 @@ Grant Street Group <developers@grantstreet.com>
 
 # COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2016 - 2020 by Grant Street Group.
+This software is Copyright (c) 2016 - 2021 by Grant Street Group.
 
 This is free software, licensed under:
 
